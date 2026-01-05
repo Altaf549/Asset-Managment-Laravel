@@ -68,6 +68,19 @@
             padding-left: 50px;
             font-size: 0.9em;
         }
+        .form-check-input.status-toggle {
+            width: 3rem;
+            height: 1.5rem;
+            cursor: pointer;
+        }
+        .form-check-input.status-toggle:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .form-check-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>

@@ -148,8 +148,12 @@
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, row) {
-                        const checked = data ? 'checked' : '';
-                        return '<input type="checkbox" class="status-toggle" data-id="' + row.id + '" ' + checked + '>';
+                        const isActive = data ? true : false;
+                        const toggleText = isActive ? 'Active' : 'Inactive';
+                        return '<div class="form-check form-switch d-inline-block">' +
+                               '<input class="form-check-input status-toggle" type="checkbox" role="switch" data-id="' + row.id + '" ' + (isActive ? 'checked' : '') + '>' +
+                               '<label class="form-check-label ms-2">' + toggleText + '</label>' +
+                               '</div>';
                     }
                 },
                 { 
