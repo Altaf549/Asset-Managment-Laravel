@@ -81,6 +81,27 @@
             font-size: 0.875rem;
             color: #6c757d;
         }
+        .btn-sm i {
+            font-size: 0.875rem;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            min-width: 32px;
+        }
+        .action-btn {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .gap-2 {
+            gap: 0.5rem !important;
+        }
+        [title] {
+            position: relative;
+        }
     </style>
 </head>
 <body>

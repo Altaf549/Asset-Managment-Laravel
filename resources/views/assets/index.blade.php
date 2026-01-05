@@ -335,7 +335,20 @@
             },
             columns: getColumns(),
             order: [[0, 'desc']],
-            pageLength: 25
+            pageLength: 25,
+            drawCallback: function() {
+                // Initialize tooltips after table draw
+                $('.action-btn').each(function() {
+                    new bootstrap.Tooltip(this);
+                });
+            }
+        });
+        
+        // Initialize tooltips on page load
+        $(document).ready(function() {
+            $('.action-btn').each(function() {
+                new bootstrap.Tooltip(this);
+            });
         });
         
         // Asset form submit
@@ -354,7 +367,12 @@
                 data: formData,
                 success: function(response) {
                     $('#assetModal').modal('hide');
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                     alert('Asset saved successfully!');
                 },
                 error: function(xhr) {
@@ -375,7 +393,12 @@
                 data: formData,
                 success: function(response) {
                     $('#assignModal').modal('hide');
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                     alert('Asset assigned successfully!');
                 },
                 error: function(xhr) {
@@ -396,7 +419,12 @@
                 data: formData,
                 success: function(response) {
                     $('#unassignModal').modal('hide');
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                     alert('Asset unassigned successfully!');
                 },
                 error: function(xhr) {
@@ -415,7 +443,13 @@
                 type: 'POST',
                 data: { status: status },
                 success: function(response) {
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    // Re-initialize tooltips after reload
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                 }
             });
         });
@@ -580,11 +614,8 @@
                 searchable: false,
                 render: function(data, type, row) {
                     const isActive = data ? true : false;
-                    const toggleClass = isActive ? 'active' : '';
-                    const toggleText = isActive ? 'Active' : 'Inactive';
                     return '<div class="form-check form-switch d-inline-block">' +
                            '<input class="form-check-input status-toggle" type="checkbox" role="switch" data-id="' + row.id + '" ' + (isActive ? 'checked' : '') + '>' +
-                           '<label class="form-check-label ms-2">' + toggleText + '</label>' +
                            '</div>';
                 }
             },
@@ -596,9 +627,12 @@
                 render: function(data, type, row) {
                     const isAssigned = row.assigned_to_id !== null;
                     const assignBtn = isAssigned 
-                        ? '<button class="btn btn-warning btn-sm unassign-btn" data-id="' + row.id + '">Unassign</button>'
-                        : '<button class="btn btn-info btn-sm assign-btn" data-id="' + row.id + '">Assign</button>';
-                    return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + row.id + '">Edit</button> ' + assignBtn;
+                        ? '<button class="btn btn-warning btn-sm unassign-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Unassign"><i class="fas fa-user-minus"></i></button>'
+                        : '<button class="btn btn-info btn-sm assign-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Assign"><i class="fas fa-user-plus"></i></button>';
+                    return '<div class="d-inline-flex gap-2">' +
+                           '<button class="btn btn-primary btn-sm edit-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="fas fa-edit"></i></button>' +
+                           assignBtn +
+                           '</div>';
                 }
             }
         ];

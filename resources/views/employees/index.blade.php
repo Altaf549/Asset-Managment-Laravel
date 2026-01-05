@@ -116,6 +116,12 @@
                 type: 'GET',
                 dataSrc: 'data'
             },
+            drawCallback: function() {
+                // Initialize tooltips after table draw
+                $('.action-btn').each(function() {
+                    new bootstrap.Tooltip(this);
+                });
+            },
             columns: [
                 { 
                     data: 'created_at', 
@@ -149,10 +155,8 @@
                     searchable: false,
                     render: function(data, type, row) {
                         const isActive = data ? true : false;
-                        const toggleText = isActive ? 'Active' : 'Inactive';
                         return '<div class="form-check form-switch d-inline-block">' +
                                '<input class="form-check-input status-toggle" type="checkbox" role="switch" data-id="' + row.id + '" ' + (isActive ? 'checked' : '') + '>' +
-                               '<label class="form-check-label ms-2">' + toggleText + '</label>' +
                                '</div>';
                     }
                 },
@@ -162,8 +166,10 @@
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, row) {
-                        return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + row.id + '">Edit</button> ' +
-                               '<button class="btn btn-danger btn-sm delete-btn" data-id="' + row.id + '">Delete</button>';
+                        return '<div class="d-inline-flex gap-2">' +
+                               '<button class="btn btn-primary btn-sm edit-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="fas fa-edit"></i></button>' +
+                               '<button class="btn btn-danger btn-sm delete-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Delete"><i class="fas fa-trash"></i></button>' +
+                               '</div>';
                     }
                 }
             ],
@@ -187,7 +193,12 @@
                 data: formData,
                 success: function(response) {
                     $('#employeeModal').modal('hide');
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                     alert('Employee saved successfully!');
                 },
                 error: function(xhr) {
@@ -215,7 +226,13 @@
                 type: 'POST',
                 data: { status: status },
                 success: function(response) {
-                    table.ajax.reload();
+                    table.ajax.reload(null, false);
+                    // Re-initialize tooltips after reload
+                    setTimeout(function() {
+                        $('.action-btn').each(function() {
+                            new bootstrap.Tooltip(this);
+                        });
+                    }, 100);
                 }
             });
         });
@@ -242,7 +259,10 @@
                     url: `/api/employees/${employeeId}`,
                     type: 'DELETE',
                     success: function(response) {
-                        table.ajax.reload();
+                        table.ajax.reload(null, false);
+                        setTimeout(function() {
+                            $('.action-btn').tooltip();
+                        }, 100);
                         alert('Employee deleted successfully!');
                     },
                     error: function(xhr) {
