@@ -21,6 +21,9 @@ foreach ($assetTypes as $type) {
         Route::get('/unassign-history', function() use ($type) {
             return app(AssetController::class)->unassignHistory($type);
         })->name('unassign-history');
+        Route::get('/export', function() use ($type) {
+            return app(AssetController::class)->export($type);
+        })->name('export');
     });
 }
 

@@ -6,9 +6,11 @@ use App\Models\Asset;
 use App\Models\AssetAssignment;
 use App\Models\AssignHistory;
 use App\Models\UnassignHistory;
+use App\Exports\AssetsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AssetController extends Controller
 {
@@ -225,5 +227,11 @@ class AssetController extends Controller
             ->get();
 
         return view('assets.unassign-history', compact('assignments', 'type'));
+    }
+
+    public function export($type)
+    {
+        $fileName = ucfirst($type) . '_Assets_' . date('Y-m-d_His') . '.xlsx';
+        return Excel::download(new AssetsExport($type), $fileName);
     }
 }
