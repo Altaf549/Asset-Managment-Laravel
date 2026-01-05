@@ -110,6 +110,10 @@
             <h4><i class="fas fa-cube"></i> Asset Management</h4>
         </div>
         <nav class="nav flex-column">
+            <a class="nav-link {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            
             <a class="nav-link {{ request()->is('assets/laptop/*') ? 'active' : '' }}" href="{{ route('assets.laptop.list') }}">
                 <i class="fas fa-laptop"></i> Laptop
             </a>
