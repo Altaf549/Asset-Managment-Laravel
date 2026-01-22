@@ -140,7 +140,7 @@
             <div class="card-body text-white" style="color: #333 !important;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-2" style="color: #666;">Mice</h6>
+                        <h6 class="mb-2" style="color: #666;">Mouse</h6>
                         <h2 class="mb-0" style="color: #333;">{{ $assetCounts['mouse'] ?? 0 }}</h2>
                     </div>
                     <div class="fs-1 opacity-50" style="color: #333;">
