@@ -108,6 +108,7 @@
     <div class="sidebar">
         <div class="p-3 text-white">
             <h4><i class="fas fa-cube"></i> Asset Management</h4>
+            <small class="text-white-50">{{ Auth::user()->name }}</small>
         </div>
         <nav class="nav flex-column">
             <a class="nav-link {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
@@ -222,6 +223,15 @@
             <a class="nav-link {{ request()->is('employees*') ? 'active' : '' }}" href="{{ route('employees.index') }}">
                 <i class="fas fa-users"></i> Employees
             </a>
+            
+            <hr class="text-white-50">
+            
+            <form method="POST" action="{{ route('logout') }}" class="mx-2">
+                @csrf
+                <button type="submit" class="nav-link btn btn-link text-white text-start w-100">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </nav>
     </div>
 
