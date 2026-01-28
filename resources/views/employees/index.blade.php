@@ -9,6 +9,20 @@
         </button>
     </div>
     <div class="card-body">
+        <!-- Status Filter -->
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-center">
+                <div class="d-flex align-items-center">
+                    <label class="form-label me-3 mb-0 fw-bold">Filter by Status:</label>
+                    <select class="form-select" name="status_filter" id="status_filter" style="width: auto;">
+                        <option value="all" selected>All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
         <div class="table-responsive">
             <table id="employeesTable" class="table table-striped table-bordered" style="width:100%">
                 <thead>
@@ -94,6 +108,28 @@
         </div>
     </div>
 </div>
+
+<!-- Asset Details Modal -->
+<div class="modal fade" id="assetDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assetDetailsModalTitle">Employee Assets</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="assetDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -114,6 +150,9 @@
             ajax: {
                 url: "{{ route('employees.index') }}",
                 type: 'GET',
+                data: function(d) {
+                    d.status_filter = $('#status_filter').val();
+                },
                 dataSrc: 'data'
             },
             drawCallback: function() {
@@ -167,6 +206,7 @@
                     searchable: false,
                     render: function(data, type, row) {
                         return '<div class="d-inline-flex gap-2">' +
+                               '<button class="btn btn-info btn-sm details-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Asset Details"><i class="fas fa-info-circle"></i></button>' +
                                '<button class="btn btn-primary btn-sm edit-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="fas fa-edit"></i></button>' +
                                '<button class="btn btn-danger btn-sm delete-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Delete"><i class="fas fa-trash"></i></button>' +
                                '</div>';
@@ -175,6 +215,11 @@
             ],
             order: [[0, 'desc']],
             pageLength: 25
+        });
+        
+        // Handle status filter changes
+        $('#status_filter').on('change', function() {
+            table.ajax.reload(null, false);
         });
         
         // Employee form submit
@@ -237,6 +282,24 @@
             });
         });
         
+        // Details button
+        $(document).on('click', '.details-btn', function() {
+            const employeeId = $(this).data('id');
+            $('#assetDetailsContent').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#assetDetailsModal').modal('show');
+            
+            $.ajax({
+                url: `/api/employees/${employeeId}/assets`,
+                type: 'GET',
+                success: function(response) {
+                    displayEmployeeAssets(response);
+                },
+                error: function(xhr) {
+                    $('#assetDetailsContent').html('<div class="alert alert-danger">Error loading employee assets</div>');
+                }
+            });
+        });
+        
         // Edit button
         $(document).on('click', '.edit-btn', function() {
             const employeeId = $(this).data('id');
@@ -293,6 +356,143 @@
                 }
             }
         });
+    }
+    
+    function displayEmployeeAssets(data) {
+        const employee = data.employee;
+        const assets = data.assets;
+        
+        // Update modal title
+        $('#assetDetailsModalTitle').text(`Assets assigned to ${employee.name} (${employee.employee_id})`);
+        
+        let html = '';
+        
+        if (assets.length === 0) {
+            html = '<div class="alert alert-info">No assets currently assigned to this employee.</div>';
+        } else {
+            // Summary section
+            html += '<div class="row mb-4">';
+            html += '<div class="col-md-3">';
+            html += '<div class="card text-center bg-primary text-white">';
+            html += '<div class="card-body">';
+            html += '<h5 class="card-title">' + assets.length + '</h5>';
+            html += '<p class="card-text">Total Assets</p>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            // Asset types breakdown
+            const assetTypes = {};
+            assets.forEach(function(asset) {
+                assetTypes[asset.asset_type] = (assetTypes[asset.asset_type] || 0) + 1;
+            });
+            
+            html += '<div class="col-md-9">';
+            html += '<div class="card">';
+            html += '<div class="card-body">';
+            html += '<h6 class="card-title">Asset Types Breakdown:</h6>';
+            for (const [type, count] of Object.entries(assetTypes)) {
+                html += '<span class="badge bg-secondary me-2 mb-2">' + type.charAt(0).toUpperCase() + type.slice(1) + ': ' + count + '</span>';
+            }
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            // Detailed asset cards
+            html += '<div class="row">';
+            assets.forEach(function(asset, index) {
+                html += '<div class="col-lg-6 mb-4">';
+                html += '<div class="card h-100">';
+                html += '<div class="card-header d-flex justify-content-between align-items-center">';
+                html += '<h6 class="mb-0"><i class="fas fa-box"></i> ' + asset.asset_id + '</h6>';
+                html += '<span class="badge bg-primary">' + asset.asset_type.charAt(0).toUpperCase() + asset.asset_type.slice(1) + '</span>';
+                html += '</div>';
+                html += '<div class="card-body">';
+                
+                // Basic Information
+                html += '<div class="mb-3">';
+                html += '<h6 class="text-primary border-bottom pb-1">Basic Information</h6>';
+                html += '<div class="row">';
+                html += '<div class="col-6"><strong>Asset ID:</strong> ' + asset.asset_id + '</div>';
+                html += '<div class="col-6"><strong>Status:</strong> ' + (asset.status ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>') + '</div>';
+                html += '<div class="col-6"><strong>Assigned Date:</strong> ' + (asset.assigned_date ? new Date(asset.assigned_date).toLocaleDateString() : '-') + '</div>';
+                html += '<div class="col-6"><strong>Notes:</strong> ' + (asset.notes || '-') + '</div>';
+                html += '</div>';
+                html += '</div>';
+                
+                // Asset Type Specific Details
+                html += '<div class="mb-3">';
+                html += '<h6 class="text-primary border-bottom pb-1">Asset Details</h6>';
+                html += '<div class="row">';
+                
+                if (asset.asset_type === 'laptop' || asset.asset_type === 'mac') {
+                    html += '<div class="col-6"><strong>Serial Number:</strong> ' + (asset.serial_number || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Model Name:</strong> ' + (asset.model_name || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Manufacturer:</strong> ' + (asset.manufacturer || '-') + '</div>';
+                    if (asset.asset_type === 'laptop') {
+                        html += '<div class="col-6"><strong>Screen Size:</strong> ' + (asset.screen_size || '-') + '</div>';
+                    }
+                    if (asset.asset_type === 'mac') {
+                        html += '<div class="col-6"><strong>Cabinet Name:</strong> ' + (asset.cabinet_name || '-') + '</div>';
+                    }
+                } else if (asset.asset_type === 'cpu') {
+                    html += '<div class="col-6"><strong>Cabinet Name:</strong> ' + (asset.cabinet_name || '-') + '</div>';
+                } else if (asset.asset_type === 'monitor') {
+                    html += '<div class="col-6"><strong>Manufacturer:</strong> ' + (asset.manufacturer || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Screen Size:</strong> ' + (asset.screen_size || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Resolution:</strong> ' + (asset.resolution || '-') + '</div>';
+                    html += '<div class="col-6"><strong>HDMI/VGA:</strong> ' + (asset.hdmi_or_vga || '-') + '</div>';
+                } else if (asset.asset_type === 'keyboard') {
+                    html += '<div class="col-6"><strong>Manufacturer:</strong> ' + (asset.manufacturer || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Keyboard Type:</strong> ' + (asset.keyboard_type || '-') + '</div>';
+                } else if (asset.asset_type === 'mouse') {
+                    html += '<div class="col-6"><strong>Manufacturer:</strong> ' + (asset.manufacturer || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Mouse Type:</strong> ' + (asset.mouse_type || '-') + '</div>';
+                } else if (asset.asset_type === 'other') {
+                    html += '<div class="col-6"><strong>Title:</strong> ' + (asset.title || '-') + '</div>';
+                }
+                
+                html += '</div>';
+                html += '</div>';
+                
+                // Hardware Specifications (for laptop, cpu, mac)
+                if (asset.asset_type === 'laptop' || asset.asset_type === 'cpu' || asset.asset_type === 'mac') {
+                    html += '<div class="mb-3">';
+                    html += '<h6 class="text-primary border-bottom pb-1">Hardware Specifications</h6>';
+                    html += '<div class="row">';
+                    html += '<div class="col-6"><strong>RAM:</strong> ' + (asset.ram || '-') + '</div>';
+                    html += '<div class="col-6"><strong>RAM Model:</strong> ' + (asset.ram_model || '-') + '</div>';
+                    html += '<div class="col-6"><strong>RAM FSB:</strong> ' + (asset.ram_fsb || '-') + '</div>';
+                    html += '<div class="col-6"><strong>SSD:</strong> ' + (asset.ssd || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Hard Disk:</strong> ' + (asset.hard_disk || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Processor Company:</strong> ' + (asset.processor_company || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Processor:</strong> ' + (asset.processor || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Processor Generation:</strong> ' + (asset.processor_generation || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Motherboard:</strong> ' + (asset.motherboard || '-') + '</div>';
+                    html += '<div class="col-6"><strong>Motherboard Model:</strong> ' + (asset.motherboard_model || '-') + '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+                
+                // Purchase Information
+                html += '<div class="mb-3">';
+                html += '<h6 class="text-primary border-bottom pb-1">Purchase Information</h6>';
+                html += '<div class="row">';
+                html += '<div class="col-6"><strong>Purchase Date:</strong> ' + (asset.purchase_date ? asset.purchase_date.split('T')[0] : '-') + '</div>';
+                html += '<div class="col-6"><strong>Vendor Name:</strong> ' + (asset.vendor_name || '-') + '</div>';
+                html += '<div class="col-12"><strong>Purchase Type:</strong> ' + (asset.purchase_type || '-') + '</div>';
+                html += '</div>';
+                html += '</div>';
+                
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+        
+        $('#assetDetailsContent').html(html);
     }
 </script>
 @endsection

@@ -54,5 +54,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/{id}/assets', [EmployeeController::class, 'getAssets'])->name('assets');
     });
 });
