@@ -21,6 +21,7 @@ class AssetController extends Controller
                 ->with(['assignments' => function ($query) {
                     $query->where('status', 'assigned')->latest()->first();
                 }])
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($asset) {
                     $currentAssignment = $asset->assignments()->where('status', 'assigned')->latest()->first();
@@ -142,6 +143,11 @@ class AssetController extends Controller
         ]);
 
         $asset = Asset::findOrFail($id);
+
+        // Check if asset is active
+        if (!$asset->status) {
+            return response()->json(['success' => false, 'message' => 'Cannot assign inactive asset. Please activate the asset first.'], 400);
+        }
 
         // Check if already assigned
         $existingAssignment = AssetAssignment::where('asset_id', $id)

@@ -316,7 +316,7 @@
                 dataSrc: 'data'
             },
             columns: getColumns(),
-            order: [[0, 'asc']],
+            ordering: false, // Disable client-side ordering since server handles it
             pageLength: 25,
             drawCallback: function() {
                 // Initialize tooltips after table draw
@@ -671,13 +671,22 @@
                 searchable: false,
                 render: function(data, type, row) {
                     const isAssigned = row.assigned_to_id !== null;
-                    const assignBtn = isAssigned 
-                        ? '<button class="btn btn-warning btn-sm unassign-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Unassign"><i class="fas fa-user-minus"></i></button>'
+                    const isActive = row.status ? true : false;
+                    
+                    // Only show assign button if asset is active and not assigned
+                    const assignBtn = (!isActive || isAssigned) 
+                        ? '<button class="btn btn-secondary btn-sm action-btn" disabled data-bs-toggle="tooltip" data-bs-title="' + (!isActive ? 'Asset inactive' : 'Already assigned') + '"><i class="fas fa-user-plus"></i></button>'
                         : '<button class="btn btn-info btn-sm assign-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Assign"><i class="fas fa-user-plus"></i></button>';
+                    
+                    // Only show unassign button if asset is assigned
+                    const unassignBtn = isAssigned 
+                        ? '<button class="btn btn-warning btn-sm unassign-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Unassign"><i class="fas fa-user-minus"></i></button>'
+                        : '';
+                    
                     return '<div class="d-inline-flex gap-2">' +
                            '<button class="btn btn-success btn-sm details-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Details"><i class="fas fa-info-circle"></i></button>' +
                            '<button class="btn btn-primary btn-sm edit-btn action-btn" data-id="' + row.id + '" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="fas fa-edit"></i></button>' +
-                           assignBtn +
+                           assignBtn + ' ' + unassignBtn +
                            '</div>';
                 }
             }
