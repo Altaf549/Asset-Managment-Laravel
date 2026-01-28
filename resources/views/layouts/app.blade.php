@@ -102,6 +102,36 @@
         [title] {
             position: relative;
         }
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0 !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection__rendered {
+            line-height: 38px !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            margin: 0 !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection__placeholder {
+            color: #6c757d;
+            line-height: 38px !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection__clear {
+            position: absolute !important;
+            right: 8px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            z-index: 9999 !important;
+        }
+        .select2-container--open {
+            z-index: 9999 !important;
+        }
     </style>
 </head>
 <body>
@@ -243,6 +273,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
         // Sidebar toggle functionality

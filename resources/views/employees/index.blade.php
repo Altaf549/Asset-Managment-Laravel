@@ -55,8 +55,8 @@
                             <input type="text" class="form-control" name="name" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" name="email" required>
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Phone</label>

@@ -20,6 +20,7 @@
                     <tr>
                         <th>ASSET ID</th>
                         <th>Name/Model</th>
+                        <th>Manufacturer</th>
                         <th>Assigned To</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -326,10 +327,30 @@
         });
         
         // Initialize tooltips on page load
-        $(document).ready(function() {
-            $('.action-btn').each(function() {
-                new bootstrap.Tooltip(this);
-            });
+        $('.action-btn').each(function() {
+            new bootstrap.Tooltip(this);
+        });
+        
+        // Initialize Select2 for searchable dropdown
+        $('#assigned_to').select2({
+            placeholder: 'Search and select an employee...',
+            allowClear: true,
+            width: '100%',
+            theme: 'bootstrap-5',
+            dropdownParent: $('#assignModal')
+        });
+        
+        // Re-initialize Select2 when modal is shown
+        $('#assignModal').on('shown.bs.modal', function () {
+            if (!$('#assigned_to').data('select2')) {
+                $('#assigned_to').select2({
+                    placeholder: 'Search and select an employee...',
+                    allowClear: true,
+                    width: '100%',
+                    theme: 'bootstrap-5',
+                    dropdownParent: $('#assignModal')
+                });
+            }
         });
         
         // Asset form submit
@@ -615,6 +636,13 @@
                 name: 'name_model',
                 render: function(data, type, row) {
                     return getNameModel(data, type, row);
+                }
+            },
+            { 
+                data: 'manufacturer', 
+                name: 'manufacturer',
+                render: function(data, type, row) {
+                    return data || '-';
                 }
             },
             { 

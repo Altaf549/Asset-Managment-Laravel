@@ -22,7 +22,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'employee_id' => 'required|string|unique:employees,employee_id',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email',
+            'email' => 'nullable|email|unique:employees,email',
             'phone' => 'nullable|string',
             'department' => 'nullable|string',
             'position' => 'nullable|string',
@@ -49,7 +49,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'employee_id' => 'required|string|unique:employees,employee_id,' . $id,
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email,' . $id,
+            'email' => 'nullable|email|unique:employees,email,' . $id,
             'phone' => 'nullable|string',
             'department' => 'nullable|string',
             'position' => 'nullable|string',
