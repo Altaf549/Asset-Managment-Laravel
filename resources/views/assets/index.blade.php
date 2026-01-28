@@ -14,6 +14,20 @@
         </div>
     </div>
     <div class="card-body">
+        <!-- Assignment Filter -->
+        <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-center">
+                <div class="d-flex align-items-center">
+                    <label class="form-label me-3 mb-0 fw-bold">Filter by Assignment:</label>
+                    <select class="form-select" name="assignment_filter" id="assignment_filter" style="width: auto;">
+                        <option value="all" selected>All</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="unassigned">Unassigned</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
         <div class="table-responsive">
             <table id="assetsTable" class="table table-striped table-bordered" style="width:100%">
                 <thead>
@@ -313,6 +327,9 @@
             ajax: {
                 url: "{{ route('assets.' . $type . '.list') }}",
                 type: 'GET',
+                data: function(d) {
+                    d.assignment_filter = $('#assignment_filter').val();
+                },
                 dataSrc: 'data'
             },
             columns: getColumns(),
@@ -351,6 +368,11 @@
                     dropdownParent: $('#assignModal')
                 });
             }
+        });
+        
+        // Handle assignment filter changes
+        $('#assignment_filter').on('change', function() {
+            table.ajax.reload(null, false);
         });
         
         // Asset form submit

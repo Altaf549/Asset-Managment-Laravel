@@ -17,11 +17,25 @@ class AssetController extends Controller
     public function index(Request $request, $type)
     {
         if ($request->ajax()) {
-            $assets = Asset::where('asset_type', $type)
+            $assignmentFilter = $request->get('assignment_filter', 'all');
+            
+            $query = Asset::where('asset_type', $type)
                 ->with(['assignments' => function ($query) {
                     $query->where('status', 'assigned')->latest()->first();
-                }])
-                ->orderBy('created_at', 'desc')
+                }]);
+            
+            // Apply assignment filter
+            if ($assignmentFilter === 'assigned') {
+                $query->whereHas('assignments', function ($q) {
+                    $q->where('status', 'assigned');
+                });
+            } elseif ($assignmentFilter === 'unassigned') {
+                $query->whereDoesntHave('assignments', function ($q) {
+                    $q->where('status', 'assigned');
+                });
+            }
+            
+            $assets = $query->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($asset) {
                     $currentAssignment = $asset->assignments()->where('status', 'assigned')->latest()->first();
